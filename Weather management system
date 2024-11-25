@@ -1,0 +1,54 @@
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import org.json.JSONObject;
+
+public class WeatherSystem {
+
+    private static final String API_KEY = "YOUR_API_KEY";  // Replace with your API key
+    private static final String BASE_URL = "http://api.openweathermap.org/data/2.5/weather?q=";
+
+    public static void main(String[] args) {
+        try {
+            // Get city name from user
+            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+            System.out.print("Enter city name: ");
+            String city = reader.readLine();
+            
+            // Build the URL for the API call
+            String urlString = BASE_URL + city + "&appid=" + API_KEY + "&units=metric";
+            URL url = new URL(urlString);
+            
+            // Open a connection to the URL
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            
+            // Get the response
+            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+            
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+            
+            // Parse the JSON response
+            JSONObject jsonResponse = new JSONObject(response.toString());
+            JSONObject main = jsonResponse.getJSONObject("main");
+            double temperature = main.getDouble("temp");
+            int humidity = main.getInt("humidity");
+            double pressure = main.getDouble("pressure");
+            
+            // Print the weather information
+            System.out.println("Weather Information for " + city + ":");
+            System.out.println("Temperature: " + temperature + "°C");
+            System.out.println("Humidity: " + humidity + "%");
+            System.out.println("Pressure: " + pressure + " hPa");
+
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+}
